@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Caça ao Diamante — STUPID & PROJETO X (v28)</title>
+<title>Caça ao Diamante — STUPID & PROJETO X (v29)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Anton&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -54,23 +54,24 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
   font-size:22px;color:#fff;
   box-shadow:0 20px 60px rgba(0,0,0,0.6);
   animation:pulseRed 1.4s infinite alternate;
+  margin-bottom:20px;
 }
 @keyframes pulseRed{0%{transform:scale(1)}100%{transform:scale(1.05)}}
+
+#btnJogarNovamente{
+  display:inline-block;
+  background:linear-gradient(90deg,#00c9a7,#92fe9d);
+  border:none;border-radius:8px;
+  padding:12px 26px;
+  color:#04203a;font-family:'Anton',sans-serif;
+  font-size:17px;cursor:pointer;
+  transition:transform .15s;
+}
+#btnJogarNovamente:hover{transform:scale(1.08);}
 
 #senhaArea{margin-top:10px;display:none;}
 #senhaArea input{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.25);color:#fff;text-align:center;}
 #senhaArea button{padding:8px 12px;border-radius:6px;border:none;background:var(--accent-yellow);color:#04203a;font-weight:700;cursor:pointer;margin-left:6px;}
-
-#btnJogarNovamente{
-  display:inline-block;margin-top:18px;
-  background:linear-gradient(90deg,#00c9a7,#92fe9d);
-  border:none;border-radius:8px;
-  padding:10px 22px;
-  color:#04203a;font-family:'Anton',sans-serif;
-  font-size:16px;cursor:pointer;
-  transition:transform .15s;
-}
-#btnJogarNovamente:hover{transform:scale(1.05);}
 
 @media (max-width:600px){
   #grid{grid-template-columns:repeat(5,42px);gap:6px;}
@@ -88,8 +89,6 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
   <div class="header"><h1>💎 Caça ao Diamante</h1><div id="status">Carregando...</div></div>
   <div id="grid"></div>
 
-  <button id="btnJogarNovamente">🔁 JOGAR NOVAMENTE</button>
-
   <div id="senhaArea">
     <p>🔒 Jogo bloqueado. Insira a senha para desbloquear:</p>
     <input id="senhaInput" placeholder="Senha">
@@ -100,6 +99,7 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
 
 <div id="bannerBloqueio">
   <div class="msg">💀 VOCÊ PERDEU — ACESSO BLOQUEADO</div>
+  <button id="btnJogarNovamente">🔁 JOGAR NOVAMENTE</button>
 </div>
 
 <!-- login -->
