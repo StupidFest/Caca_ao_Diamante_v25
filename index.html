@@ -3,13 +3,41 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Caça ao Diamante — STUPID & PROJETO X (v25 secure)</title>
+<title>Caça ao Diamante — STUPID & PROJETO X (v26 secure)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Anton&display=swap" rel="stylesheet">
 <style>
-:root{--bg1:#2b0464;--bg2:#0b3b86;--accent-yellow:#ffd166}
+:root{
+  --bg1:#2b0464;--bg2:#0b3b86;
+  --accent-yellow:#ffd166;--bomb:#ff4b5c;
+  --diamond1:#b8fff0;--diamond2:#00c9a7;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(120deg,var(--bg1),var(--bg2)); color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:12px}
-.wrap{width:100%;max-width:900px;border-radius:12px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 12px 40px rgba(0,0,0,0.5);position:relative}
+body{
+  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  background:linear-gradient(120deg,var(--bg1),var(--bg2));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:12px;overflow:hidden;
+}
+.wrap{
+  width:100%;max-width:950px;border-radius:14px;padding:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+  box-shadow:0 12px 40px rgba(0,0,0,0.55);position:relative;
+}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-family:'Anton',sans-serif;color:var(--accent-yellow);font-size:22px}
+#status{font-weight:600}
+#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:10px;margin-top:18px}
+.cell{aspect-ratio:1/1;border-radius:10px;background:#ffd966;display:flex;align-items:center;justify-content:center;color:#04203a;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.cell:hover{transform:translateY(-6px)scale(1.03);box-shadow:0 8px 20px rgba(0,0,0,0.4)}
+.cell.revealed{pointer-events:none;opacity:0.9}
+.cell.bomba{background:radial-gradient(circle,var(--bomb),#b00020);color:#fff;}
+.cell.diamante{background:linear-gradient(135deg,var(--diamond1),var(--diamond2));color:#003;font-weight:800}
+#bannerBloqueio{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;max-width:92%;background:linear-gradient(90deg,#ff4b5c,#b00020);padding:14px;text-align:center;font-weight:700;font-size:20px;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+#victoryOverlay{position:fixed;inset:0;display:none;z-index:40;align-items:center;justify-content:center;flex-direction:column;gap:20px;background:rgba(3,7,18,0.9);text-align:center;}
+#victoryOverlay .winText{font-family:'Anton',sans-serif;font-size:64px;letter-spacing:4px;color:var(--accent-yellow);animation:blink 900ms steps(2,start) infinite;}
+@keyframes blink{50%{opacity:0.05;transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
+.confetti{position:fixed;width:10px;height:16px;z-index:39;pointer-events:none;opacity:0.95;animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh)rotate(720deg);opacity:0.95;}}
 .login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#1a0350,#012b6a);display:flex;align-items:center;justify-content:center;z-index:9999}
 .login-card{background:rgba(255,255,255,0.05);border-radius:12px;padding:22px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6);width:92%;max-width:360px}
 .login-logo{width:180px;margin-bottom:10px}
@@ -18,22 +46,25 @@ body{font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial; back
 .login-card button{width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(90deg,#ff3cac,#784ba0);color:var(--accent-yellow);font-family:'Anton',sans-serif;cursor:pointer}
 #loginMsg{color:#ffd166;margin-top:8px;min-height:20px}
 
-/* grid */
-#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:10px;margin-top:14px}
-.cell{aspect-ratio:1/1;border-radius:10px;background:#ffd966;display:flex;align-items:center;justify-content:center;color:#04203a;font-weight:700;cursor:pointer}
-.header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{font-family:'Anton',sans-serif;color:var(--accent-yellow)}
+/* intro */
+.introOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);z-index:20;padding:20px;}
+.introCard{width:100%;max-width:820px;background:rgba(255,255,255,0.05);border-radius:12px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);text-align:center;max-height:80vh;overflow:auto;}
+.introLogo{width:320px;max-width:85%;margin:0 auto 8px;display:block;border-radius:8px;}
+.typed{text-align:left;white-space:pre-wrap;line-height:1.45;font-size:16px;color:#fff;margin:12px 6px;min-height:140px;}
+.rowBtns{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap;}
+.btn{font-family:'Anton',sans-serif;border:0;cursor:pointer;padding:10px 18px;border-radius:10px;font-size:16px;}
+.btnPlay{background:linear-gradient(90deg,#ff3cac,#ff7eb3);color:var(--accent-yellow);}
+.btnStart{background:linear-gradient(90deg,#66a6ff,#89f7fe);color:#04203a;}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="wrapGame" style="display:none;">
   <div class="header"><h1>💎 Caça ao Diamante</h1><div id="status">Carregando...</div></div>
-
-  <div id="grid" aria-hidden="true"></div>
+  <div id="grid"></div>
 </div>
 
-<!-- login overlay -->
-<div id="loginScreen" class="login-screen" role="dialog" aria-label="Login">
+<!-- login -->
+<div id="loginScreen" class="login-screen">
   <div class="login-card">
     <img class="login-logo" src="https://i.imgur.com/umOlxMN.png" alt="logo">
     <h2>Caça ao Diamante</h2>
@@ -45,83 +76,100 @@ h1{font-family:'Anton',sans-serif;color:var(--accent-yellow)}
   </div>
 </div>
 
+<!-- intro -->
+<div id="introOverlay" class="introOverlay">
+  <div class="introCard">
+    <img class="introLogo" src="https://i.imgur.com/umOlxMN.png">
+    <div class="typed" id="typedArea"></div>
+    <div class="rowBtns">
+      <button id="btnPlay" class="btn btnPlay">▶ PLAY</button>
+      <button id="btnSkip" class="btn btnStart">PULAR</button>
+      <button id="btnStart" class="btn btnStart" style="display:none">VAMOS LÁ</button>
+    </div>
+  </div>
+</div>
+
+<div id="victoryOverlay">
+  <img src="https://i.imgur.com/umOlxMN.png" style="width:300px;max-width:80%;">
+  <div class="winText">VOCÊ GANHOU!</div>
+</div>
+
 <script src="./decryptor.js"></script>
-<!-- secrets.enc.js will be generated locally by running encrypt.js with your passphrase.
-     Do NOT upload secrets.json. Only upload the generated secrets.enc.js to the repo. -->
 <script src="./secrets.enc.js"></script>
-
 <script>
-/* CONFIG: replace with your Apps Script URL */
 const API_URL = "https://script.google.com/macros/s/AKfycbwpJxXmUA7aVgqh8D5MA1DhdRS_PTHfgklV9obzQxzc6g57vcIfbin3ZoCNhXA6GjXTpg/exec";
+const TOTAL_CELLS=30;
+let chances=15,diamantesEncontrados=0,posDiamante=null,bloqueado=false,introSeen=localStorage.getItem('v26_introSeen')==='true';
+const gridEl=document.getElementById('grid'),statusEl=document.getElementById('status');
 
-/* Basic game visual-only logic (no secrets here). The actual secret arrays will be injected after decryption. */
-const TOTAL_CELLS = 30;
-let chances = 15;
-let diamantesEncontrados = 0;
-let posDiamante = null;
-
-const gridEl = document.getElementById('grid');
-const statusEl = document.getElementById('status');
-
-/* draw simple grid (visual) */
-function desenharGrid(){
-  gridEl.innerHTML = '';
-  for(let i=0;i<TOTAL_CELLS;i++){
-    const c=document.createElement('div');
-    c.className='cell';
-    c.textContent='';
-    gridEl.appendChild(c);
-  }
+function atualizarStatus(){statusEl.textContent=`💎 ${diamantesEncontrados}/5 | ❤️ ${chances} chances`;}
+function desenharGrid(){gridEl.innerHTML='';for(let i=0;i<TOTAL_CELLS;i++){const c=document.createElement('div');c.className='cell';c.addEventListener('click',()=>clicarCelula(i,c));gridEl.appendChild(c);} }
+function gerarDiamante(){return Math.floor(Math.random()*TOTAL_CELLS);}
+function iniciarRodada(){posDiamante=gerarDiamante();desenharGrid();atualizarStatus();}
+function clicarCelula(i,c){if(bloqueado||chances<=0)return;if(c.classList.contains('revealed'))return;c.classList.add('revealed');
+  if(i===posDiamante){c.classList.add('diamante');c.textContent='💎';diamantesEncontrados++;chances=15;atualizarStatus();
+    if(diamantesEncontrados>=5){setTimeout(()=>{showVictory();bloqueado=true;localStorage.setItem('v26_bloqueado','true');},400);return;}
+    setTimeout(iniciarRodada,700);
+  }else{c.classList.add('bomba');c.textContent='💣';chances--;atualizarStatus();if(chances<=0)perderJogo();}
 }
+function perderJogo(){bloqueado=true;localStorage.setItem('v26_bloqueado','true');document.getElementById('bannerBloqueio').style.display='block';}
+function showVictory(){statusEl.style.display='none';gridEl.style.display='none';document.getElementById('victoryOverlay').style.display='flex';launchConfetti(90);}
+function launchConfetti(n){const colors=['#ffdd57','#ff6b6b','#6bffb8','#6bb0ff'];for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top='-10vh';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDuration=3+Math.random()*3+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),6000);}}
 
-/* init UI */
-desenharGrid();
-
-/* login logic: calls Apps Script to verify name+senha */
-document.getElementById('btnEntrar').onclick = async function(){
-  const nome = document.getElementById('nomeInput').value.trim().toUpperCase();
-  const senha = document.getElementById('senhaInputLogin').value.trim();
-  const msg = document.getElementById('loginMsg');
-  if(!nome || !senha){ msg.textContent = 'Preencha nome e senha.'; return; }
-  msg.textContent = 'Verificando...';
-  try {
-    const r = await fetch(`${API_URL}?nome=${encodeURIComponent(nome)}&senha=${encodeURIComponent(senha)}`);
-    const d = await r.json();
+// login
+document.getElementById('btnEntrar').onclick = async ()=>{
+  const nome=document.getElementById('nomeInput').value.trim().toUpperCase();
+  const senha=document.getElementById('senhaInputLogin').value.trim();
+  const msg=document.getElementById('loginMsg');
+  if(!nome||!senha){msg.textContent='Preencha nome e senha.';return;}
+  msg.textContent='Verificando...';
+  try{
+    const r=await fetch(`${API_URL}?nome=${encodeURIComponent(nome)}&senha=${encodeURIComponent(senha)}`);
+    const d=await r.json();
     if(d.autorizado){
-      msg.textContent = 'Acesso liberado — carregando jogo...';
-      // load secrets (decrypt) automatically using the passphrase embedded (ofuscated) in this file flow.
-      // decryptor will attempt to load ENCRYPTED_PAYLOAD from secrets.enc.js and derive key using passphrase embedded in code below.
-      const passphrase = "oorangyx"; // passphrase is required to decrypt secrets.enc.js
-      try {
-        const secrets = await window.loadSecrets(passphrase);
-        // attach secrets to window for game runtime (do NOT expose them elsewhere)
-        window.__SECRETS = secrets;
-        msg.textContent = 'Segredos carregados — começando...';
-        // remove login screen and start actual game init
-        document.getElementById('loginScreen').remove();
-        startGameWithSecrets();
-      } catch (e) {
-        console.error(e);
-        msg.textContent = 'Falha ao descriptografar segredos (passphrase incorreta ou arquivo ausente).';
-      }
-    } else {
-      msg.textContent = 'Acesso negado. Status: ' + (d.status || 'NÃO AUTORIZADO');
-    }
-  } catch(err){
-    console.error(err);
-    msg.textContent = 'Erro de conexão ao verificar acesso.';
-  }
+      msg.textContent='Acesso liberado — carregando jogo...';
+      const passphrase=atob("b29yYW5neXg=");
+      const secrets=await window.loadSecrets(passphrase);
+      window.__SECRETS=secrets;
+      msg.textContent='Segredos carregados — iniciando...';
+      document.getElementById('loginScreen').remove();
+      setTimeout(()=>{startGame();},500);
+    }else msg.textContent='Acesso negado. Status: '+(d.status||'NÃO AUTORIZADO');
+  }catch(e){console.error(e);msg.textContent='Erro de conexão.';}
 };
 
-/* placeholder: start game using secrets (this function should integrate with your full game logic) */
-function startGameWithSecrets(){
-  // Example: use window.__SECRETS.senhasValidas or window.__SECRETS.MASTER_PASSWORD
-  // Here we simply show the grid and status.
-  statusEl.textContent = `💎 ${diamantesEncontrados}/5 | ❤️ ${chances} chances`;
-  gridEl.setAttribute('aria-hidden','false');
-  // TODO: integrate full game logic or replace with your original v24 code, referencing window.__SECRETS
+function startGame(){
+  document.getElementById('wrapGame').style.display='block';
+  if(!introSeen){
+    introOverlay.style.display='flex';
+  }else{
+    iniciarRodada();
+  }
 }
 
+const introOverlay=document.getElementById('introOverlay');
+const typedArea=document.getElementById('typedArea');
+const btnPlay=document.getElementById('btnPlay');
+const btnSkip=document.getElementById('btnSkip');
+const btnStart=document.getElementById('btnStart');
+const lines=[
+  "STUPID 💎 & PROJETO X 🚀 se uniram — e quem ganha é você!",
+  "",
+  "Encontre 5 diamantes escondidos e ganhe:",
+  "- VIP na STUPID",
+  "- Uma surpresa exclusiva da PROJETO X",
+  "",
+  "Como jogar:",
+  "Você tem 15 chances.",
+  "💣 bomba = perde 1 chance.",
+  "💎 diamante = tabuleiro reinicia.",
+  "",
+  "Boa sorte, jogador!"
+];
+btnPlay.onclick=()=>{btnPlay.disabled=true;typeIntro(lines,typedArea,()=>btnStart.style.display='inline-block');};
+btnSkip.onclick=()=>{introSeen=true;localStorage.setItem('v26_introSeen','true');introOverlay.style.display='none';iniciarRodada();};
+btnStart.onclick=()=>{introSeen=true;localStorage.setItem('v26_introSeen','true');introOverlay.style.display='none';iniciarRodada();};
+function typeIntro(lines,el,cb){el.textContent='';let i=0;function next(){if(i>=lines.length){cb();return;}const line=lines[i++];let j=0;(function t(){el.textContent+=line[j++]||'';if(j<line.length)setTimeout(t,25);else{el.textContent+='\n';setTimeout(next,150);}})();}next();}
 </script>
 </body>
 </html>
