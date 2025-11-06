@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Caça ao Diamante — STUPID & PROJETO X (v26 ajustado)</title>
+<title>Caça ao Diamante — STUPID & PROJETO X (v27)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Anton&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -100,8 +100,6 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
   </div>
 </div>
 
-<script src="./decryptor.js"></script>
-<script src="./secrets.enc.js"></script>
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbw2G3hdj_MPg_op-jP5wabXwiy5fB4rr7uLnnOr9EJc8urjWnvAgLrRb2-sCx6k_5Xjzg/exec";
 const TOTAL_CELLS=30;
@@ -167,16 +165,56 @@ document.getElementById('btnEntrar').onclick=async()=>{
     const r=await fetch(`${API_URL}?nome=${encodeURIComponent(nome)}&senha=${encodeURIComponent(senha)}`);
     const d=await r.json();
     if(d.autorizado){
-      nomeAtual=nome;
+      nomeAtual = nome;
       document.getElementById('loginScreen').remove();
+      const introKey = "introVista_" + nomeAtual;
+      const jaViuIntro = localStorage.getItem(introKey) === "true";
       document.getElementById('wrapAll').style.display='block';
-      iniciarRodada();
-    }else msg.textContent="Acesso negado.";
+      if (!jaViuIntro) {
+        mostrarIntro(() => {
+          localStorage.setItem(introKey, "true");
+          iniciarRodada();
+        });
+      } else {
+        iniciarRodada();
+      }
+    } else msg.textContent="Acesso negado.";
   }catch(e){
     console.error(e);
     msg.textContent="Erro de conexão.";
   }
 };
+
+/* intro explicativa */
+function mostrarIntro(callback){
+  const intro=document.createElement('div');
+  intro.style.cssText=`
+    position:fixed;inset:0;background:rgba(0,0,0,0.95);
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;z-index:5000;color:#fff;
+    text-align:center;padding:20px;
+  `;
+  intro.innerHTML=`
+    <img src="https://i.imgur.com/umOlxMN.png" style="width:220px;margin-bottom:10px;">
+    <h2 style="font-family:'Anton',sans-serif;color:#ffd166;">Como jogar 💎</h2>
+    <div style="max-width:400px;font-size:15px;line-height:1.5;margin-bottom:20px;text-align:left;">
+      <p>✨ Você tem <b>15 chances</b> para encontrar <b>5 diamantes</b> escondidos.</p>
+      <p>💣 Se clicar em uma bomba, perde 1 chance.</p>
+      <p>💎 Ao achar um diamante, o tabuleiro reinicia e suas chances voltam para 15.</p>
+      <p>🏆 Encontre os 5 diamantes para vencer o jogo!</p>
+    </div>
+    <button id="btnComecarIntro" style="
+      background:linear-gradient(90deg,#66a6ff,#89f7fe);
+      border:none;padding:10px 20px;border-radius:8px;
+      font-family:'Anton',sans-serif;font-size:16px;color:#04203a;
+      cursor:pointer;">COMEÇAR</button>
+  `;
+  document.body.appendChild(intro);
+  document.getElementById('btnComecarIntro').onclick=()=>{
+    intro.remove();
+    if(callback)callback();
+  };
+}
 </script>
 </body>
 </html>
