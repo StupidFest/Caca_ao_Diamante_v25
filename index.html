@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Caça ao Diamante — STUPID & PROJETO X (v25 secure)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#2b0464;--bg2:#0b3b86;--accent-yellow:#ffd166}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(120deg,var(--bg1),var(--bg2)); color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:12px}
+.wrap{width:100%;max-width:900px;border-radius:12px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 12px 40px rgba(0,0,0,0.5);position:relative}
+.login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#1a0350,#012b6a);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:rgba(255,255,255,0.05);border-radius:12px;padding:22px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6);width:92%;max-width:360px}
+.login-logo{width:180px;margin-bottom:10px}
+.login-card h2{font-family:'Anton',sans-serif;color:var(--accent-yellow);margin-bottom:10px}
+.login-card input{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.25);color:#fff;text-align:center}
+.login-card button{width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(90deg,#ff3cac,#784ba0);color:var(--accent-yellow);font-family:'Anton',sans-serif;cursor:pointer}
+#loginMsg{color:#ffd166;margin-top:8px;min-height:20px}
+
+/* grid */
+#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:10px;margin-top:14px}
+.cell{aspect-ratio:1/1;border-radius:10px;background:#ffd966;display:flex;align-items:center;justify-content:center;color:#04203a;font-weight:700;cursor:pointer}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-family:'Anton',sans-serif;color:var(--accent-yellow)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header"><h1>💎 Caça ao Diamante</h1><div id="status">Carregando...</div></div>
+
+  <div id="grid" aria-hidden="true"></div>
+</div>
+
+<!-- login overlay -->
+<div id="loginScreen" class="login-screen" role="dialog" aria-label="Login">
+  <div class="login-card">
+    <img class="login-logo" src="https://i.imgur.com/umOlxMN.png" alt="logo">
+    <h2>Caça ao Diamante</h2>
+    <p>Digite seu nome e senha para jogar</p>
+    <input id="nomeInput" type="text" placeholder="Seu nome">
+    <input id="senhaInputLogin" type="password" placeholder="Senha (padrão: 1)">
+    <button id="btnEntrar">ENTRAR</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<script src="./decryptor.js"></script>
+<!-- secrets.enc.js will be generated locally by running encrypt.js with your passphrase.
+     Do NOT upload secrets.json. Only upload the generated secrets.enc.js to the repo. -->
+<script src="./secrets.enc.js"></script>
+
+<script>
+/* CONFIG: replace with your Apps Script URL */
+const API_URL = "https://script.google.com/macros/s/AKfycbwpJxXmUA7aVgqh8D5MA1DhdRS_PTHfgklV9obzQxzc6g57vcIfbin3ZoCNhXA6GjXTpg/exec";
+
+/* Basic game visual-only logic (no secrets here). The actual secret arrays will be injected after decryption. */
+const TOTAL_CELLS = 30;
+let chances = 15;
+let diamantesEncontrados = 0;
+let posDiamante = null;
+
+const gridEl = document.getElementById('grid');
+const statusEl = document.getElementById('status');
+
+/* draw simple grid (visual) */
+function desenharGrid(){
+  gridEl.innerHTML = '';
+  for(let i=0;i<TOTAL_CELLS;i++){
+    const c=document.createElement('div');
+    c.className='cell';
+    c.textContent='';
+    gridEl.appendChild(c);
+  }
+}
+
+/* init UI */
+desenharGrid();
+
+/* login logic: calls Apps Script to verify name+senha */
+document.getElementById('btnEntrar').onclick = async function(){
+  const nome = document.getElementById('nomeInput').value.trim().toUpperCase();
+  const senha = document.getElementById('senhaInputLogin').value.trim();
+  const msg = document.getElementById('loginMsg');
+  if(!nome || !senha){ msg.textContent = 'Preencha nome e senha.'; return; }
+  msg.textContent = 'Verificando...';
+  try {
+    const r = await fetch(`${API_URL}?nome=${encodeURIComponent(nome)}&senha=${encodeURIComponent(senha)}`);
+    const d = await r.json();
+    if(d.autorizado){
+      msg.textContent = 'Acesso liberado — carregando jogo...';
+      // load secrets (decrypt) automatically using the passphrase embedded (ofuscated) in this file flow.
+      // decryptor will attempt to load ENCRYPTED_PAYLOAD from secrets.enc.js and derive key using passphrase embedded in code below.
+      const passphrase = "oorangyx"; // passphrase is required to decrypt secrets.enc.js
+      try {
+        const secrets = await window.loadSecrets(passphrase);
+        // attach secrets to window for game runtime (do NOT expose them elsewhere)
+        window.__SECRETS = secrets;
+        msg.textContent = 'Segredos carregados — começando...';
+        // remove login screen and start actual game init
+        document.getElementById('loginScreen').remove();
+        startGameWithSecrets();
+      } catch (e) {
+        console.error(e);
+        msg.textContent = 'Falha ao descriptografar segredos (passphrase incorreta ou arquivo ausente).';
+      }
+    } else {
+      msg.textContent = 'Acesso negado. Status: ' + (d.status || 'NÃO AUTORIZADO');
+    }
+  } catch(err){
+    console.error(err);
+    msg.textContent = 'Erro de conexão ao verificar acesso.';
+  }
+};
+
+/* placeholder: start game using secrets (this function should integrate with your full game logic) */
+function startGameWithSecrets(){
+  // Example: use window.__SECRETS.senhasValidas or window.__SECRETS.MASTER_PASSWORD
+  // Here we simply show the grid and status.
+  statusEl.textContent = `💎 ${diamantesEncontrados}/5 | ❤️ ${chances} chances`;
+  gridEl.setAttribute('aria-hidden','false');
+  // TODO: integrate full game logic or replace with your original v24 code, referencing window.__SECRETS
+}
+
+</script>
+</body>
+</html>
