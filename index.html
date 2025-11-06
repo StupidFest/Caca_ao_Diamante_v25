@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Caça ao Diamante — STUPID & PROJETO X (v27)</title>
+<title>Caça ao Diamante — STUPID & PROJETO X (v28)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Anton&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -61,6 +61,17 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
 #senhaArea input{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.25);color:#fff;text-align:center;}
 #senhaArea button{padding:8px 12px;border-radius:6px;border:none;background:var(--accent-yellow);color:#04203a;font-weight:700;cursor:pointer;margin-left:6px;}
 
+#btnJogarNovamente{
+  display:inline-block;margin-top:18px;
+  background:linear-gradient(90deg,#00c9a7,#92fe9d);
+  border:none;border-radius:8px;
+  padding:10px 22px;
+  color:#04203a;font-family:'Anton',sans-serif;
+  font-size:16px;cursor:pointer;
+  transition:transform .15s;
+}
+#btnJogarNovamente:hover{transform:scale(1.05);}
+
 @media (max-width:600px){
   #grid{grid-template-columns:repeat(5,42px);gap:6px;}
   .logoWrap img{width:200px;}
@@ -76,6 +87,9 @@ h1{font-family:'Anton',sans-serif;font-size:20px;color:var(--accent-yellow);}
   <div class="charWrap"><img src="https://i.imgur.com/fhRoSJC.png" alt="personagem"></div>
   <div class="header"><h1>💎 Caça ao Diamante</h1><div id="status">Carregando...</div></div>
   <div id="grid"></div>
+
+  <button id="btnJogarNovamente">🔁 JOGAR NOVAMENTE</button>
+
   <div id="senhaArea">
     <p>🔒 Jogo bloqueado. Insira a senha para desbloquear:</p>
     <input id="senhaInput" placeholder="Senha">
@@ -183,6 +197,11 @@ document.getElementById('btnEntrar').onclick=async()=>{
     console.error(e);
     msg.textContent="Erro de conexão.";
   }
+};
+
+/* botão jogar novamente */
+document.getElementById('btnJogarNovamente').onclick=()=>{ 
+  location.reload(); 
 };
 
 /* intro explicativa */
