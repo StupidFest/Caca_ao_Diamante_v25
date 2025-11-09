@@ -143,7 +143,7 @@ function clicarCelula(i,c){
     c.classList.add('diamante');c.textContent='💎';
     diamantesEncontrados++;
     if(diamantesEncontrados>=5){vencer();}
-    else{chances=15;iniciarRodada();}
+    else{chances=20;iniciarRodada();}
   }else{
     c.classList.add('bomba');c.textContent='💣';
     chances--;atualizarStatus();
